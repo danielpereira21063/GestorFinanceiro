@@ -1,13 +1,8 @@
 ﻿using GestorFinanceiro.Enums;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace GestorFinanceiro.Models
 {
-    public class Movimentos : BaseModel
+    public class Movimento : BaseModel
     {
         public int IdUsuario { get; set; }
         public Categoria Categoria { get; set; }
@@ -16,7 +11,12 @@ namespace GestorFinanceiro.Models
         public string Descricao { get; set; }
         public DateTime? Data;
 
-        public Movimentos(int idUsuario, Categoria categoria, decimal valor, string local, string descricao,DateTime data)
+        public Movimento()
+        {
+
+        }
+
+        public Movimento(int idUsuario, Categoria categoria, decimal valor, string local, string descricao, DateTime data)
         {
             IdUsuario = idUsuario;
             Categoria = categoria;
@@ -24,10 +24,11 @@ namespace GestorFinanceiro.Models
             Local = local;
             Descricao = descricao;
 
-            if(data == null)
+            if (data == null)
             {
                 Data = DateTime.Now;
-            } else
+            }
+            else
             {
                 Data = data;
             }

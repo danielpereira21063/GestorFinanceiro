@@ -1,6 +1,6 @@
 ﻿namespace GestorFinanceiro.Models
 {
-    public class Saldo : BaseModel
+    public class Usuario : BaseModel
     {
     }
 }
