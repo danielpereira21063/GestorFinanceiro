@@ -1,3 +1,4 @@
+using GestorFinanceiro.Data;
 using GestorFinanceiro.Enums;
 using GestorFinanceiro.Migrations;
 using GestorFinanceiro.Models;
@@ -9,24 +10,36 @@ namespace GestorFinanceiro
     public partial class Principal : Form
     {
         private DBContext DbContext;
+        private List<Movimento> Movimentos = new List<Movimento>();
+        private List<Saldo> Saldos = new List<Saldo>();
 
         public Principal()
         {
             InitializeComponent();
+
+            DbContext = new DBContext("localhost", "root", "ab12c3");
+            InitialSchema initialSchema = new InitialSchema(DbContext);
+            initialSchema.CreateSchema();
         }
 
         private void Principal_Load(object sender, EventArgs e)
         {
+            DbContext = new DBContext("localhost", "gestor_financeiro", "root", "ab12c3");
+            GenerateData data = new GenerateData(DbContext);
 
-            InitialSchema initialSchema = new InitialSchema();
+            if (!GetAllDados())
+            {
+                data.Generate();
+            }
+        }
 
-            initialSchema.CreateSchema();
 
-            DbContext = new DBContext();
+        private bool GetAllDados()
+        {
             try
             {
                 DbContext.Connection.Open();
-                string sql = "SELECT * FROM MOVIMENTOS ORDER BY `data` DESC";
+                string sql = "SELECT * FROM `movimentos` ORDER BY `data` DESC";
 
                 MySqlCommand command = new MySqlCommand(sql, DbContext.Connection);
                 MySqlDataReader reader = command.ExecuteReader();
@@ -49,10 +62,11 @@ namespace GestorFinanceiro
                                 Descricao = reader.GetString("descricao"),
                                 Local = reader.GetString("local"),
                                 Valor = reader.GetInt32("valor"),
-                                Data = DateTime.Parse( reader.GetString("data")),
+                                Data = DateTime.Parse(reader.GetString("data")),
                             });
                         }
                     }
+                    return true;
                 }
             }
             catch (Exception ex)
@@ -66,6 +80,8 @@ namespace GestorFinanceiro
                     DbContext.Connection.Close();
                 }
             }
+
+            return false;
         }
     }
 }

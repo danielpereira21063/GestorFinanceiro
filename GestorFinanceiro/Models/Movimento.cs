@@ -16,7 +16,7 @@ namespace GestorFinanceiro.Models
 
         }
 
-        public Movimento(int idUsuario, Categoria categoria, decimal valor, string local, string descricao, DateTime data)
+        public Movimento(int idUsuario, Categoria categoria, decimal valor, string local, string descricao, DateTime? data = null)
         {
             IdUsuario = idUsuario;
             Categoria = categoria;

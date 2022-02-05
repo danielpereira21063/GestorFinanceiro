@@ -12,22 +12,51 @@ namespace GestorFinanceiro.Migrations
     {
         private DBContext _dbContext;
 
-        public InitialSchema()
+        public InitialSchema(DBContext dBContext)
         {
-            _dbContext = new DBContext();
+            _dbContext = dBContext;
         }
         public void CreateSchema()
         {
+            CreateDatabase();
+            CreateTables();
+            CreateUser();
+        }
 
+
+        public void CreateDatabase()
+        {
             try
             {
-                _dbContext.Connection.Open();
-
                 string sql = String.Empty;
+                sql += "CREATE DATABASE IF NOT EXISTS gestor_financeiro DEFAULT CHARACTER SET utf8 COLLATE utf8_general_ci;";
 
-                //database
-                sql += "CREATE DATABASE IF NOT EXISTS Gestor_Financeiro DEFAULT CHARACTER SET utf8  COLLATE utf8_general_ci;";
-                sql += "\n USE Gestor_Financeiro;\n\n";
+                _dbContext.Connection.Open();
+                MySqlCommand command = new MySqlCommand(sql, _dbContext.Connection);
+
+                command.ExecuteNonQuery();
+
+                _dbContext = new DBContext("localhost", "gestor_financeiro", "root", "ab12c3");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                if (_dbContext.Connection.State == ConnectionState.Open)
+                {
+                    _dbContext.Connection.Close();
+                }
+            }
+
+        }
+
+        public void CreateTables()
+        {
+            try
+            {
+                string sql = string.Empty;
 
                 //usuarios
                 sql += "\n CREATE TABLE IF NOT EXISTS `usuarios` (";
@@ -57,16 +86,58 @@ namespace GestorFinanceiro.Migrations
                 //histórico de saldo
                 sql += "\n CREATE TABLE IF NOT EXISTS `saldo` (";
                 sql += "\n `idSaldo` int unsigned NOT NULL AUTO_INCREMENT,";
-                sql += "`\n idUsuario` int unsigned DEFAULT NULL,";
-                sql += "`\n idMovimento` int DEFAULT NULL,";
+                sql += "\n `idUsuario` int unsigned DEFAULT NULL,";
+                sql += "\n `idMovimento` int DEFAULT NULL,";
                 sql += "\n `saldoAtual` decimal(10,2) DEFAULT NULL,";
                 sql += "\n PRIMARY KEY (`idSaldo`),";
                 sql += "\n KEY `FK_saldo_usuarios` (`idUsuario`),";
                 sql += "\n KEY `FK_saldo_movimentos` (`idMovimento`)";
                 sql += "\n ) DEFAULT CHARSET = utf8;";
 
+                _dbContext.Connection.Open();
+
                 MySqlCommand command = new MySqlCommand(sql, _dbContext.Connection);
-                MySqlDataReader reader = command.ExecuteReader();
+                command.ExecuteNonQuery();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
+            finally
+            {
+                if (_dbContext.Connection.State == ConnectionState.Open)
+                {
+                    _dbContext.Connection.Close();
+                }
+            }
+        }
+
+        public void CreateUser()
+        {
+            try
+            {
+                string sql = string.Empty;
+                sql += "SELECT * FROM `usuarios`;";
+
+                _dbContext.Connection.Open();
+                MySqlCommand c = new MySqlCommand(sql, _dbContext.Connection);
+                MySqlDataReader reader = c.ExecuteReader();
+                if (!reader.HasRows)
+                {
+                    _dbContext.Connection.Close();
+
+                    sql = String.Empty;
+
+                    sql += "INSERT INTO `usuarios` ";
+                    sql += "\n (`id`, `nome`, `email`, `nomeUsuario`, `senha`, `dtCadastro`, `admin`) VALUES";
+                    sql += "\n (1, 'Daniel Pereira Sanches', 'danielsanches6301@gmail.com', 'daniel', 'senhaforte', '0000-00-00 00:00:00', '1');";
+
+                    _dbContext.Connection.Open();
+                    MySqlCommand command = new MySqlCommand(sql, _dbContext.Connection);
+                    command.ExecuteNonQuery();
+                }
+
             }
             catch (Exception ex)
             {
@@ -79,8 +150,6 @@ namespace GestorFinanceiro.Migrations
                     _dbContext.Connection.Close();
                 }
             }
-
-
         }
     }
 
